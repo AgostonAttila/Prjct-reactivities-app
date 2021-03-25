@@ -3,6 +3,7 @@ using Application.Activities;
 using Application.Core;
 using Application.Interfaces;
 using AutoMapper;
+using Infrastructure.Email;
 using Infrastructure.Photos;
 using Infrastructure.Security;
 using MediatR;
@@ -68,13 +69,19 @@ namespace API.Extensions
             {
                 opt.AddPolicy("CorsPolicy", policy =>
                 {
-                    policy.AllowAnyMethod().AllowAnyHeader().AllowCredentials().WithOrigins(new string[] { "http://localhost:3000", "test" });
+                    policy
+                    .AllowAnyMethod()
+                    .AllowAnyHeader()
+                    .AllowCredentials()
+                    .WithExposedHeaders("WWW-Authenticate", "Pagination")
+                    .WithOrigins(new string[] { "http://localhost:3000", "test" });
                 });
             });
             services.AddMediatR(typeof(List.Handler).Assembly);
             services.AddAutoMapper(typeof(MappingProfiles).Assembly);
             services.AddScoped<IUserAccessor, UserAccessor>();
             services.AddScoped<IPhotoAccessor, PhotoAccessor>();
+            services.AddScoped<EmailSender>();
             services.Configure<CloudinarySettings>(config.GetSection("Cloudinary"));
             services.AddSignalR();
 
